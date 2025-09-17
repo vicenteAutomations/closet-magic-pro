@@ -1,15 +1,55 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Sidebar from "@/components/Sidebar";
-import { Upload, Image as ImageIcon, Sparkles, CheckCircle, ArrowLeft, ArrowRight } from "lucide-react";
+import { Upload, Image as ImageIcon, Sparkles, CheckCircle, ArrowLeft, ArrowRight, X } from "lucide-react";
 
 const TryOn = () => {
-  const [personImage, setPersonImage] = useState("");
-  const [clothingImage, setClothingImage] = useState("");
+  const [personImage, setPersonImage] = useState<File | null>(null);
+  const [clothingImage, setClothingImage] = useState<File | null>(null);
+  const [personPreview, setPersonPreview] = useState<string>("");
+  const [clothingPreview, setClothingPreview] = useState<string>("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const personInputRef = useRef<HTMLInputElement>(null);
+  const clothingInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileUpload = (file: File, type: 'person' | 'clothing') => {
+    const fileUrl = URL.createObjectURL(file);
+    
+    if (type === 'person') {
+      setPersonImage(file);
+      setPersonPreview(fileUrl);
+    } else {
+      setClothingImage(file);
+      setClothingPreview(fileUrl);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent, type: 'person' | 'clothing') => {
+    e.preventDefault();
+    const files = Array.from(e.dataTransfer.files);
+    const imageFile = files.find(file => file.type.startsWith('image/'));
+    if (imageFile) {
+      handleFileUpload(imageFile, type);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const removeImage = (type: 'person' | 'clothing') => {
+    if (type === 'person') {
+      if (personPreview) URL.revokeObjectURL(personPreview);
+      setPersonImage(null);
+      setPersonPreview("");
+    } else {
+      if (clothingPreview) URL.revokeObjectURL(clothingPreview);
+      setClothingImage(null);
+      setClothingPreview("");
+    }
+  };
 
   const handleGenerate = () => {
     setIsGenerating(true);
@@ -20,8 +60,8 @@ const TryOn = () => {
   };
 
   const isStepComplete = (step: number) => {
-    if (step === 1) return personImage.length > 0;
-    if (step === 2) return clothingImage.length > 0;
+    if (step === 1) return personImage !== null;
+    if (step === 2) return clothingImage !== null;
     return false;
   };
 
@@ -65,26 +105,50 @@ const TryOn = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <Label htmlFor="person-url">Image URL</Label>
-                    <Input
-                      id="person-url"
-                      placeholder="https://example.com/your-photo.jpg"
-                      value={personImage}
-                      onChange={(e) => setPersonImage(e.target.value)}
-                      className="bg-muted/50"
+                    <input
+                      type="file"
+                      ref={personInputRef}
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleFileUpload(file, 'person');
+                      }}
                     />
-                    {personImage && (
-                      <div className="mt-4 p-4 glass-effect rounded-lg">
-                        <img 
-                          src={personImage} 
-                          alt="Your photo preview" 
-                          className="max-h-40 mx-auto rounded-lg"
-                          onError={(e) => {
-                            e.currentTarget.src = "/placeholder-person.jpg";
-                          }}
-                        />
-                      </div>
-                    )}
+                    <div
+                      className="border-2 border-dashed border-primary/20 rounded-lg p-8 text-center hover:border-primary/40 transition-colors cursor-pointer bg-muted/20"
+                      onDrop={(e) => handleDrop(e, 'person')}
+                      onDragOver={handleDragOver}
+                      onClick={() => personInputRef.current?.click()}
+                    >
+                      {personPreview ? (
+                        <div className="relative">
+                          <img 
+                            src={personPreview} 
+                            alt="Your photo preview" 
+                            className="max-h-48 mx-auto rounded-lg object-cover"
+                          />
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            className="absolute top-2 right-2"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeImage('person');
+                            }}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <Upload className="h-12 w-12 text-primary/60 mx-auto" />
+                          <p className="text-lg font-medium text-foreground">Drop your photo here</p>
+                          <p className="text-sm text-muted-foreground">or click to browse files</p>
+                          <p className="text-xs text-muted-foreground">PNG, JPG, WEBP up to 20MB</p>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -102,26 +166,50 @@ const TryOn = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <Label htmlFor="clothing-url">Image URL</Label>
-                    <Input
-                      id="clothing-url"
-                      placeholder="https://example.com/clothing-item.jpg"
-                      value={clothingImage}
-                      onChange={(e) => setClothingImage(e.target.value)}
-                      className="bg-muted/50"
+                    <input
+                      type="file"
+                      ref={clothingInputRef}
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleFileUpload(file, 'clothing');
+                      }}
                     />
-                    {clothingImage && (
-                      <div className="mt-4 p-4 glass-effect rounded-lg">
-                        <img 
-                          src={clothingImage} 
-                          alt="Clothing item preview" 
-                          className="max-h-40 mx-auto rounded-lg"
-                          onError={(e) => {
-                            e.currentTarget.src = "/placeholder-clothing.jpg";
-                          }}
-                        />
-                      </div>
-                    )}
+                    <div
+                      className="border-2 border-dashed border-primary/20 rounded-lg p-8 text-center hover:border-primary/40 transition-colors cursor-pointer bg-muted/20"
+                      onDrop={(e) => handleDrop(e, 'clothing')}
+                      onDragOver={handleDragOver}
+                      onClick={() => clothingInputRef.current?.click()}
+                    >
+                      {clothingPreview ? (
+                        <div className="relative">
+                          <img 
+                            src={clothingPreview} 
+                            alt="Clothing item preview" 
+                            className="max-h-48 mx-auto rounded-lg object-cover"
+                          />
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            className="absolute top-2 right-2"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeImage('clothing');
+                            }}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <ImageIcon className="h-12 w-12 text-primary/60 mx-auto" />
+                          <p className="text-lg font-medium text-foreground">Drop clothing item here</p>
+                          <p className="text-sm text-muted-foreground">or click to browse files</p>
+                          <p className="text-xs text-muted-foreground">PNG, JPG, WEBP up to 20MB</p>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -171,15 +259,12 @@ const TryOn = () => {
                   <div className="space-y-6">
                     {/* Person Preview */}
                     <div className="text-center">
-                      <div className="w-32 h-40 bg-muted rounded-lg mx-auto mb-2 flex items-center justify-center">
-                        {personImage ? (
+                      <div className="w-32 h-40 bg-muted rounded-lg mx-auto mb-2 flex items-center justify-center overflow-hidden">
+                        {personPreview ? (
                           <img 
-                            src={personImage} 
+                            src={personPreview} 
                             alt="Person preview" 
-                            className="w-full h-full object-cover rounded-lg"
-                            onError={(e) => {
-                              e.currentTarget.style.display = 'none';
-                            }}
+                            className="w-full h-full object-cover"
                           />
                         ) : (
                           <span className="text-muted-foreground text-xs">Your Photo</span>
@@ -189,15 +274,12 @@ const TryOn = () => {
 
                     {/* Clothing Preview */}
                     <div className="flex justify-center">
-                      <div className="w-24 h-24 bg-muted rounded-lg flex items-center justify-center">
-                        {clothingImage ? (
+                      <div className="w-24 h-24 bg-muted rounded-lg flex items-center justify-center overflow-hidden">
+                        {clothingPreview ? (
                           <img 
-                            src={clothingImage} 
+                            src={clothingPreview} 
                             alt="Clothing preview" 
-                            className="w-full h-full object-cover rounded-lg"
-                            onError={(e) => {
-                              e.currentTarget.style.display = 'none';
-                            }}
+                            className="w-full h-full object-cover"
                           />
                         ) : (
                           <span className="text-muted-foreground text-xs text-center">Clothing Item</span>
