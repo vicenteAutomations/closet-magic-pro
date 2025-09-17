@@ -5,10 +5,11 @@ import { Upload, TrendingUp, Bookmark, ArrowRight } from "lucide-react";
 
 const Dashboard = () => {
   const recentActivity = [
-    { id: 1, name: "Monday Meeting", image: "/placeholder-outfit1.jpg" },
-    { id: 2, name: "Dinner Date", image: "/placeholder-outfit2.jpg" },
-    { id: 3, name: "Gym Session", image: "/placeholder-outfit3.jpg" },
-    { id: 4, name: "Coffee Date", image: "/placeholder-outfit4.jpg" },
+    { id: 1, name: "Monday Meeting", image: "/api/placeholder/200/250" },
+    { id: 2, name: "Dinner Date", image: "/api/placeholder/200/250" },
+    { id: 3, name: "Dinner Date", image: "/api/placeholder/200/250" },
+    { id: 4, name: "Gym Session", image: "/api/placeholder/200/250" },
+    { id: 5, name: "Gym Session", image: "/api/placeholder/200/250" },
   ];
 
   return (
@@ -28,63 +29,65 @@ const Dashboard = () => {
 
           {/* Quick Actions */}
           <div className="mb-8">
-            <h2 className="text-2xl font-semibold text-foreground mb-4">Quick Actions</h2>
+            <h2 className="text-2xl font-semibold text-foreground mb-6">Quick Actions</h2>
             <div className="grid md:grid-cols-3 gap-6">
-              <Card className="glass-card hover:shadow-glow transition-all duration-300">
-                <CardHeader>
-                  <CardTitle className="flex items-center text-primary">
-                    <Upload className="mr-2 h-5 w-5" />
+              <Card className="glass-card hover:shadow-glow transition-all duration-300 bg-primary/10 border-primary/20">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-primary text-lg font-semibold">
                     Start a New Try-On
                   </CardTitle>
-                  <CardDescription>
-                    Upload your photo and start trying on clothes instantly
+                  <CardDescription className="text-sm text-muted-foreground">
+                    Try On
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-2">
                   <Button 
-                    variant="hero" 
-                    className="w-full"
+                    variant="default" 
+                    size="sm"
+                    className="bg-primary/80 hover:bg-primary text-primary-foreground"
                     asChild
                   >
                     <a href="/try-on">
                       Upload Now
-                      <ArrowRight className="ml-2 h-4 w-4" />
                     </a>
                   </Button>
+                  <div className="flex gap-2 mt-3">
+                    <Upload className="h-4 w-4 text-primary/60" />
+                    <Upload className="h-4 w-4 text-primary/60" />
+                  </div>
                 </CardContent>
               </Card>
 
-              <Card className="glass-card">
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <TrendingUp className="mr-2 h-5 w-5 text-muted-foreground" />
+              <Card className="glass-card hover:shadow-glow transition-all duration-300">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-foreground text-lg font-semibold">
                     Explore Trends
                   </CardTitle>
-                  <CardDescription>
-                    Discover the latest fashion trends and popular items
+                  <CardDescription className="text-sm text-muted-foreground">
+                    Discover latest styles, gain fitting tips to find the garment.
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <Button variant="outline" className="w-full">
+                <CardContent className="pt-2">
+                  <Button variant="secondary" size="sm" className="text-xs">
                     Browse Trends
                   </Button>
                 </CardContent>
               </Card>
 
-              <Card className="glass-card">
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Bookmark className="mr-2 h-5 w-5 text-muted-foreground" />
+              <Card className="glass-card hover:shadow-glow transition-all duration-300">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-foreground text-lg font-semibold">
                     Review Saved Looks
                   </CardTitle>
-                  <CardDescription>
+                  <CardDescription className="text-sm text-muted-foreground">
                     Check out your previously saved outfits and looks
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-2">
                   <Button 
-                    variant="outline" 
-                    className="w-full"
+                    variant="default"
+                    size="sm"
+                    className="bg-primary/80 hover:bg-primary text-primary-foreground"
                     asChild
                   >
                     <a href="/saved-looks">Explore Now</a>
@@ -96,12 +99,19 @@ const Dashboard = () => {
 
           {/* Recent Activity */}
           <div>
-            <h2 className="text-2xl font-semibold text-foreground mb-4">Your Recent Activity</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <h2 className="text-2xl font-semibold text-foreground mb-6">Your Recent Activity</h2>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               {recentActivity.map((item) => (
-                <div key={item.id} className="glass-card p-4 text-center hover:shadow-glow transition-all duration-300 cursor-pointer">
-                  <div className="w-full h-32 bg-muted rounded-lg mb-3 flex items-center justify-center">
-                    <span className="text-muted-foreground text-sm">Outfit Preview</span>
+                <div key={item.id} className="glass-card p-3 text-center hover:shadow-glow transition-all duration-300 cursor-pointer">
+                  <div className="w-full h-40 bg-muted/50 rounded-lg mb-3 overflow-hidden">
+                    <img 
+                      src={item.image} 
+                      alt={item.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjI1MCIgdmlld0JveD0iMCAwIDIwMCAyNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjUwIiBmaWxsPSIjMkEyQTJBIi8+CjxjaXJjbGUgY3g9IjEwMCIgY3k9IjgwIiByPSIyMCIgZmlsbD0iIzRBNEE0QSIvPgo8cGF0aCBkPSJNNjAgMTIwSDE0MFYyMDBINjBWMTIwWiIgZmlsbD0iIzRBNEE0QSIvPgo8L3N2Zz4K';
+                      }}
+                    />
                   </div>
                   <p className="text-sm font-medium text-foreground">{item.name}</p>
                 </div>
