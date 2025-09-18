@@ -61,7 +61,7 @@ const TryOn = () => {
       formData.append('your photo', personImage);
       formData.append('clothing item', clothingImage);
       
-      const response = await fetch('https://1d19b53b10dd.ngrok-free.app/webhook-test/fc4fd143-ff5b-4596-b171-bf7266a2d531', {
+      const response = await fetch('https://vicente170.app.n8n.cloud/webhook-test/fc4fd143-ff5b-4596-b171-bf7266a2d531', {
         method: 'POST',
         body: formData,
       });
