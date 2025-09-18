@@ -51,12 +51,31 @@ const TryOn = () => {
     }
   };
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
+    if (!personImage || !clothingImage) return;
+    
     setIsGenerating(true);
-    // Simulate API call
-    setTimeout(() => {
+    
+    try {
+      const formData = new FormData();
+      formData.append('your photo', personImage);
+      formData.append('clothing item', clothingImage);
+      
+      const response = await fetch('https://1d19b53b10dd.ngrok-free.app/webhook-test/fc4fd143-ff5b-4596-b171-bf7266a2d531', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (response.ok) {
+        console.log('Images uploaded successfully');
+      } else {
+        console.error('Upload failed');
+      }
+    } catch (error) {
+      console.error('Error uploading images:', error);
+    } finally {
       setIsGenerating(false);
-    }, 3000);
+    }
   };
 
   const isStepComplete = (step: number) => {
